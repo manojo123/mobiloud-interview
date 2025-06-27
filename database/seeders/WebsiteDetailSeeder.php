@@ -13,7 +13,7 @@ class WebsiteDetailSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('website_details')->insert([
+        $websiteDetails = [
             ['name' => 'Shopify', 'slug' => 'shopify', 'type' => 'ecommerce'],
             ['name' => 'WooCommerce', 'slug' => 'woocommerce', 'type' => 'ecommerce'],
             ['name' => 'BigCommerce', 'slug' => 'bigcommerce', 'type' => 'ecommerce'],
@@ -25,6 +25,13 @@ class WebsiteDetailSeeder extends Seeder
             ['name' => 'Webflow', 'slug' => 'webflow', 'type' => 'other'],
             ['name' => 'Custom Developed', 'slug' => 'custom_developed', 'type' => 'other'],
             ['name' => 'Other', 'slug' => 'other', 'type' => 'other'],
-        ]);
+        ];
+
+        foreach ($websiteDetails as $detail) {
+            DB::table('website_details')->updateOrInsert(
+                ['slug' => $detail['slug'], 'type' => $detail['type']],
+                $detail
+            );
+        }
     }
 }
