@@ -145,6 +145,13 @@ test('validates exact minimum length for company name', function () {
 
 // Step 2 Tests
 test('can access form step2', function () {
+    // Add step 1 data to session first
+    $this->post('/form/step1', [
+        'name' => 'John Doe',
+        'email' => 'john@example.com',
+        'company_name' => 'Acme Corp',
+    ]);
+
     $response = $this->get('/form/step2');
 
     $response->assertStatus(200);
@@ -225,6 +232,21 @@ test('can access form step3', function () {
 });
 
 test('can access form step4', function () {
+    // Add all required step data to session first
+    $this->post('/form/step1', [
+        'name' => 'John Doe',
+        'email' => 'john@example.com',
+        'company_name' => 'Acme Corp',
+    ]);
+
+    $this->post('/form/step2', [
+        'website_type' => 'ecommerce',
+    ]);
+
+    $this->post('/form/step3', [
+        'platform' => 'shopify',
+    ]);
+
     $response = $this->get('/form/step4');
 
     $response->assertStatus(200);
@@ -232,6 +254,7 @@ test('can access form step4', function () {
         ->component('Form/Step4')
         ->where('step', 4)
         ->where('totalSteps', 4)
+        ->has('formData')
     );
 });
 
@@ -501,7 +524,9 @@ test('can submit complete form successfully', function () {
     $response = $this->post('/form/submit');
 
     $response->assertRedirect('/form');
-    $response->assertSessionHas('success', 'Your information has been submitted successfully! We will contact you soon.');
+    $response->assertSessionHas('success');
+    // Check that success message contains the base message (notification text may vary)
+    $this->assertStringContainsString('Your information has been submitted successfully!', session('success'));
 });
 
 test('prevents email duplication on form submission', function () {
@@ -553,7 +578,9 @@ test('displays success message after successful submission', function () {
 
     $response->assertStatus(200);
     $response->assertInertia(fn ($page) => $page
-        ->where('success', 'Your information has been submitted successfully! We will contact you soon.')
+        ->where('success', function ($success) {
+            return str_contains($success, 'Your information has been submitted successfully!');
+        })
     );
 });
 

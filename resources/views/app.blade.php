@@ -42,6 +42,22 @@
         @routes
         @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
         @inertiaHead
+
+        <!-- OneSignal SDK -->
+        <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" defer></script>
+        <script>
+            window.OneSignal = window.OneSignal || [];
+            OneSignal.push(function() {
+                OneSignal.init({
+                    appId: "{{ config('services.onesignal.app_id') }}",
+                    safari_web_id: "{{ config('services.onesignal.safari_web_id', '') }}",
+                    notifyButton: {
+                        enable: true,
+                    },
+                    allowLocalhostAsSecureOrigin: true,
+                });
+            });
+        </script>
     </head>
     <body class="font-sans antialiased">
         @inertia
