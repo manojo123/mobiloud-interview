@@ -7,14 +7,14 @@ use Illuminate\Support\Facades\Log;
 
 class OneSignalService
 {
-    private string $appId;
-    private string $apiKey;
+    private ?string $appId;
+    private ?string $apiKey;
     private string $baseUrl = 'https://onesignal.com/api/v1';
 
     public function __construct()
     {
         $this->appId = config('services.onesignal.app_id');
-        $this->apiKey = config('services.onesignal.api_key');
+        $this->apiKey = config('services.onesignal.rest_api_key');
     }
 
     /**
@@ -22,6 +22,15 @@ class OneSignalService
      */
     public function sendNotificationToAll(string $message, array $data = []): array
     {
+        // Check if configuration is valid
+        if (empty($this->appId) || empty($this->apiKey)) {
+            return [
+                'success' => false,
+                'error' => 'OneSignal configuration is missing. Please check your environment variables.',
+                'config_issue' => true
+            ];
+        }
+
         $payload = [
             'app_id' => $this->appId,
             'included_segments' => ['All'],
@@ -31,8 +40,12 @@ class OneSignalService
             'headings' => [
                 'en' => 'New Lead Submission'
             ],
-            'data' => $data,
-            'url' => config('app.url') . '/admin/leads', // Optional: redirect URL
+            'data' => array_merge($data, [
+                'notification_type' => 'new_registration',
+                'web_url' => config('app.url') . '/form',
+                'timestamp' => now()->toISOString()
+            ]),
+            'url' => config('app.url') . '/form', // Redirect URL when notification is clicked
         ];
 
         return $this->makeApiCall('notifications', $payload);
@@ -43,6 +56,15 @@ class OneSignalService
      */
     public function sendNotificationToUsers(array $userIds, string $message, array $data = []): array
     {
+        // Check if configuration is valid
+        if (empty($this->appId) || empty($this->apiKey)) {
+            return [
+                'success' => false,
+                'error' => 'OneSignal configuration is missing. Please check your environment variables.',
+                'config_issue' => true
+            ];
+        }
+
         $payload = [
             'app_id' => $this->appId,
             'include_external_user_ids' => $userIds,
@@ -52,7 +74,11 @@ class OneSignalService
             'headings' => [
                 'en' => 'New Lead Submission'
             ],
-            'data' => $data,
+            'data' => array_merge($data, [
+                'notification_type' => 'new_registration',
+                'web_url' => config('app.url') . '/form',
+                'timestamp' => now()->toISOString()
+            ]),
         ];
 
         return $this->makeApiCall('notifications', $payload);
@@ -73,9 +99,8 @@ class OneSignalService
 
             if ($response->successful()) {
                 Log::info('OneSignal notification sent successfully', [
-                    'endpoint' => $endpoint,
-                    'payload' => $payload,
-                    'response' => $responseData
+                    'notification_id' => $responseData['id'] ?? null,
+                    'recipients' => $responseData['recipients'] ?? null
                 ]);
 
                 return [
@@ -84,24 +109,29 @@ class OneSignalService
                     'message' => 'Notification sent successfully'
                 ];
             } else {
-                Log::error('OneSignal API error', [
-                    'endpoint' => $endpoint,
-                    'payload' => $payload,
+                $errorMessage = 'OneSignal API error';
+                if (isset($responseData['errors'])) {
+                    $errorMessage .= ': ' . (is_array($responseData['errors']) ? implode(', ', $responseData['errors']) : $responseData['errors']);
+                }
+
+                Log::error('OneSignal API call failed', [
                     'status' => $response->status(),
-                    'response' => $responseData
+                    'response' => $responseData,
+                    'payload' => $payload
                 ]);
 
                 return [
                     'success' => false,
-                    'error' => $responseData['errors'] ?? 'Unknown error',
-                    'status' => $response->status()
+                    'error' => $errorMessage,
+                    'status' => $response->status(),
+                    'response' => $responseData
                 ];
             }
         } catch (\Exception $e) {
-            Log::error('OneSignal API exception', [
+            Log::error('OneSignal network error', [
+                'error' => $e->getMessage(),
                 'endpoint' => $endpoint,
-                'payload' => $payload,
-                'exception' => $e->getMessage()
+                'payload' => $payload
             ]);
 
             return [

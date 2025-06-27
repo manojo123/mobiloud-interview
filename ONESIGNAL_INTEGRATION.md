@@ -28,8 +28,8 @@ The OneSignal integration automatically sends push notifications to all subscrib
 **OneSignal Configuration:**
 ```php
 'onesignal' => [
-    'app_id' => env('ONESIGNAL_APP_ID', 'd5c1fb18-dc0e-4af1-b7f1-59dc80e466c3'),
-    'api_key' => env('ONESIGNAL_API_KEY', 'os_v2_app_2xa7wgg4bzfpdn7rlhoibzdgymjmp47ck7muwbuvssdvita5gmikes2ltvaszelrgcwy7zgmfrihow6wbygtppzgxrfyqznoryh64za'),
+    'app_id' => env('ONESIGNAL_APP_ID', ''),
+    'api_key' => env('ONESIGNAL_API_KEY', ''),
     'rest_api_key' => env('ONESIGNAL_REST_API_KEY'),
 ],
 ```

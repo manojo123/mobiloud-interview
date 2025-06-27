@@ -1,5 +1,8 @@
 <template>
     <div class="min-h-screen bg-gray-50 py-12">
+        <!-- OneSignal Notification Component -->
+        <OneSignalNotification />
+
         <div class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
             <!-- Progress Bar -->
             <div class="mb-8">
@@ -173,6 +176,7 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
 import { computed, reactive, ref } from 'vue';
+import OneSignalNotification from '@/components/OneSignalNotification.vue';
 
 // Props from the controller
 interface Props {
@@ -294,7 +298,7 @@ const submitForm = async () => {
     loading.value = true;
 
     try {
-        await router.post(route('form.store-step1'), form);
+        await router.post(route('form.step1.store'), form);
     } catch (error) {
         console.error('Form submission error:', error);
     } finally {

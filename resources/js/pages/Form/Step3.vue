@@ -224,7 +224,7 @@ const submitForm = async () => {
     loading.value = true;
 
     try {
-        await router.post(route('form.store-step3'), form);
+        await router.post(route('form.step3.store'), form);
     } catch (error) {
         console.error('Form submission error:', error);
     } finally {

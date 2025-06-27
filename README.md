@@ -397,17 +397,59 @@ The integration includes robust error handling:
 - **Network Issues**: Retry logic for network failures
 - **Invalid Data**: Validation of notification data
 - **User Feedback**: Clear status messages in the UI
+- **Form Submission Reliability**: Users are always saved even if notifications fail
+- **Transaction Safety**: Database transactions ensure data integrity
+- **Comprehensive Logging**: Detailed logging for debugging notification issues
+
+### Reliability Improvements
+
+The OneSignal integration has been enhanced with several reliability improvements:
+
+#### 1. **Separated Concerns**
+- User creation and notification sending are now separate operations
+- Users are always saved to the database regardless of notification status
+- Notification failures do not break the form submission flow
+
+#### 2. **Database Transactions**
+- User creation uses database transactions for data integrity
+- If user creation fails, the entire transaction is rolled back
+- If notification fails, the user data remains saved
+
+#### 3. **Enhanced Error Handling**
+- Detailed error logging for debugging notification issues
+- Graceful degradation when OneSignal service is unavailable
+- User-friendly error messages that don't expose technical details
+
+#### 4. **Improved Logging**
+- Comprehensive logging of notification attempts and results
+- Detailed error information for troubleshooting
+- Success logging with notification IDs and recipient counts
+
+#### 5. **User Experience**
+- Clear status messages during form submission
+- Notification status indicators in the UI
+- Form submission always succeeds even if notifications fail
+
+### Troubleshooting
+
+If notifications are not being received:
+
+1. **Check Configuration**: Verify OneSignal credentials in `.env`
+2. **Review Logs**: Check Laravel logs for notification errors
+3. **Test Service**: Use the test command to verify OneSignal connectivity
+4. **Check Browser**: Ensure OneSignal SDK is properly loaded
+5. **Verify Subscription**: Check if users are subscribed to notifications
 
 ### Testing
 
-The OneSignal integration includes comprehensive tests:
+The integration includes comprehensive testing:
 
 ```bash
 # Run OneSignal integration tests
-./vendor/bin/sail test tests/Feature/OneSignalIntegrationTest.php
+php artisan test --filter=OneSignalIntegrationTest
 
-# Run all tests including OneSignal
-./vendor/bin/sail test
+# Test OneSignal service directly
+php artisan onesignal:test --message="Test notification"
 ```
 
 ### Monitoring and Analytics
@@ -423,25 +465,6 @@ The OneSignal integration includes comprehensive tests:
 - **Data Privacy**: Only necessary data is sent to OneSignal
 - **User Consent**: Notifications are sent automatically on form submission
 - **Rate Limiting**: Respects OneSignal API rate limits
-
-### Troubleshooting
-
-Common issues and solutions:
-
-1. **Notifications Not Sending**:
-   - Check OneSignal API keys in `.env`
-   - Verify OneSignal app configuration
-   - Check server logs for API errors
-
-2. **SDK Loading Issues**:
-   - Ensure OneSignal SDK is loaded in the layout
-   - Check browser console for JavaScript errors
-   - Verify internet connectivity
-
-3. **Segmentation Not Working**:
-   - Verify user data is being sent correctly
-   - Check OneSignal dashboard for segment creation
-   - Review notification payload structure
 
 ### Future Enhancements
 

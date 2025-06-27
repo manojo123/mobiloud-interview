@@ -50,12 +50,21 @@
             OneSignal.push(function() {
                 OneSignal.init({
                     appId: "{{ config('services.onesignal.app_id') }}",
-                    safari_web_id: "{{ config('services.onesignal.safari_web_id', '') }}",
+                    allowLocalhostAsSecureOrigin: true,
+                    autoRegister: true,
+                    autoResubscribe: true,
                     notifyButton: {
                         enable: true,
+                        showAfterSubscribed: true,
                     },
-                    allowLocalhostAsSecureOrigin: true,
+                    welcomeNotification: {
+                        title: "Welcome!",
+                        message: "You'll receive notifications when new users register."
+                    }
                 });
+
+                // Ensure user is subscribed
+                OneSignal.registerForPushNotifications();
             });
         </script>
     </head>

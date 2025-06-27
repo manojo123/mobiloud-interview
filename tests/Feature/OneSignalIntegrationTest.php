@@ -134,17 +134,4 @@ class OneSignalIntegrationTest extends TestCase
         $this->assertFalse($result['success']);
         $this->assertArrayHasKey('error', $result);
     }
-
-    public function test_onesignal_configuration_loaded_correctly()
-    {
-        $this->assertEquals(
-            'd5c1fb18-dc0e-4af1-b7f1-59dc80e466c3',
-            config('services.onesignal.app_id')
-        );
-
-        $this->assertEquals(
-            'os_v2_app_2xa7wgg4bzfpdn7rlhoibzdgymjmp47ck7muwbuvssdvita5gmikes2ltvaszelrgcwy7zgmfrihow6wbygtppzgxrfyqznoryh64za',
-            config('services.onesignal.api_key')
-        );
-    }
 }

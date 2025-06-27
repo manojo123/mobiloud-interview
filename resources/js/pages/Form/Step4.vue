@@ -250,33 +250,13 @@ const submitForm = async () => {
     loading.value = true;
     notificationStatus.value = 'sending';
 
-    // Log OneSignal request details
-    console.log('🚀 OneSignal Integration - Form Submission Started');
-    console.log('📊 Form Data:', props.formData);
-    console.log('📱 OneSignal App ID:', window.OneSignal?.getAppId?.() || 'Not initialized');
-    console.log('⏰ Submission Time:', new Date().toISOString());
-
     try {
         // Submit the form
         await router.post(route('form.submit'), {}, {
             onSuccess: (page) => {
-                console.log('✅ Form submitted successfully');
-                console.log('📨 OneSignal notification triggered');
-                console.log('📄 Response:', page);
-
                 notificationStatus.value = 'success';
-
-                // Additional OneSignal logging
-                if (window.OneSignal) {
-                    console.log('🔔 OneSignal SDK Status:', {
-                        isPushSupported: window.OneSignal.isPushSupported(),
-                        isSubscribed: window.OneSignal.isSubscribed(),
-                        getUserId: window.OneSignal.getUserId(),
-                    });
-                }
             },
             onError: (errors) => {
-                console.error('❌ Form submission failed:', errors);
                 notificationStatus.value = 'error';
             },
             onFinish: () => {
@@ -284,7 +264,6 @@ const submitForm = async () => {
             }
         });
     } catch (error) {
-        console.error('💥 Unexpected error during form submission:', error);
         notificationStatus.value = 'error';
         loading.value = false;
     }

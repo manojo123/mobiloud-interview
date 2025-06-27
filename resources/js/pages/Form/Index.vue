@@ -1,5 +1,8 @@
 <template>
   <div class="min-h-screen bg-gray-50 py-12">
+    <!-- OneSignal Notification Component -->
+    <OneSignalNotification />
+
     <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
       <!-- Success Message -->
       <div v-if="success" class="mb-8 rounded-md bg-green-50 p-6">
@@ -72,6 +75,7 @@
 
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import OneSignalNotification from '@/components/OneSignalNotification.vue';
 
 interface Props {
   success?: string;

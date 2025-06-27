@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Stringable;
+use Illuminate\Support\Facades\DB;
 
 class FormController extends Controller
 {
@@ -185,7 +186,10 @@ class FormController extends Controller
             ])->withInput($session['step1']);
         }
 
+        // Create user and website detail in a transaction
         try {
+            DB::beginTransaction();
+
             $websiteDetail = WebsiteDetail::query()
                 ->where('type', $session['step2']['website_type'])
                 ->where('name', $session['step3']['platform'])
@@ -208,10 +212,13 @@ class FormController extends Controller
                 'password' => bcrypt('12345678'),
             ]);
 
-            // Send OneSignal notification
-            $notificationResult = $this->sendLeadNotification($user, $session);
+            DB::commit();
 
+            // Clear session data after successful user creation
             $request->session()->forget('form_data');
+
+            // Send OneSignal notification (separate from user creation)
+            $notificationResult = $this->sendLeadNotification($user, $session);
 
             $successMessage = 'Your information has been submitted successfully! We will contact you soon.';
 
@@ -219,12 +226,26 @@ class FormController extends Controller
                 $successMessage .= ' Notification sent to team.';
             } else {
                 // Log notification failure but don't fail the form submission
-                Log::warning('OneSignal notification failed', $notificationResult);
+                Log::warning('OneSignal notification failed for user: ' . $user->id, [
+                    'user_id' => $user->id,
+                    'error' => $notificationResult['error'] ?? 'Unknown error',
+                    'notification_result' => $notificationResult
+                ]);
+
+                $successMessage .= ' (Notification service temporarily unavailable)';
             }
 
             return redirect()->route('form.index')->with('success', $successMessage);
 
         } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error('Form submission failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'form_data' => $session
+            ]);
+
             return redirect()->route('form.step1')->withErrors([
                 'general' => 'Something went wrong while processing your submission. Please try again or contact support if the problem persists.'
             ])->withInput($session['step1']);
@@ -245,7 +266,9 @@ class FormController extends Controller
             'company_name' => $user->company_name,
             'website_type' => $formData['step2']['website_type'],
             'platform' => $formData['step3']['platform'],
+            'website_url' => $user->website_url,
             'submitted_at' => now()->toISOString(),
+            'lead_type' => 'form_submission'
         ];
 
         return $this->oneSignalService->sendNotificationToAll($message, $data);
