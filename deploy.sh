@@ -43,7 +43,7 @@ done
 
 # Run database migrations
 echo "🗄️ Running database migrations..."
-docker-compose -f docker-compose.prod.yml exec app php artisan migrate --force
+docker-compose -f docker-compose.prod.yml exec app php artisan migrate --seed --force
 
 # Clear and cache configuration
 echo "⚙️ Optimizing application..."
