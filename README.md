@@ -666,6 +666,115 @@ docker-compose up -d
 - [ ] Configure backup strategy
 - [ ] Test OneSignal integration
 
+## 🐳 Docker Deployment
+
+The application includes a complete Docker setup for production deployment with PHP 8.4, Nginx, and MySQL.
+
+### Prerequisites
+
+- Docker and Docker Compose installed
+- Production environment variables configured
+
+### Quick Deployment
+
+1. **Prepare Environment Variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your production values
+   ```
+
+2. **Run Deployment Script**
+   ```bash
+   ./deploy.sh
+   ```
+
+### Manual Deployment
+
+1. **Build and Start Services**
+   ```bash
+   docker-compose -f docker-compose.prod.yml up --build -d
+   ```
+
+2. **Run Database Migrations**
+   ```bash
+   docker-compose -f docker-compose.prod.yml exec app php artisan migrate --force
+   ```
+
+3. **Optimize Application**
+   ```bash
+   docker-compose -f docker-compose.prod.yml exec app php artisan config:cache
+   docker-compose -f docker-compose.prod.yml exec app php artisan route:cache
+   docker-compose -f docker-compose.prod.yml exec app php artisan view:cache
+   ```
+
+### Docker Configuration
+
+#### Production Dockerfile
+- **Base Image**: Ubuntu 24.04 (same as Laravel Sail)
+- **PHP Version**: 8.4 with all necessary extensions
+- **Web Server**: Nginx with PHP-FPM
+- **Process Manager**: Supervisor
+- **Node.js**: 22.x for asset compilation
+
+#### Services
+- **app**: Laravel application with Nginx + PHP-FPM
+- **mysql**: MySQL 8.0 database
+
+#### Key Features
+- Multi-stage build optimization
+- Production-ready Nginx configuration
+- Proper file permissions
+- Health checks for database
+- Automatic restart policies
+- Optimized for Laravel + Inertia.js
+
+### Environment Variables
+
+Required environment variables for production:
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=http://your-domain.com
+
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=your_database
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+
+ONESIGNAL_APP_ID=your_onesignal_app_id
+ONESIGNAL_REST_API_KEY=your_onesignal_rest_api_key
+```
+
+### Useful Commands
+
+```bash
+# View logs
+docker-compose -f docker-compose.prod.yml logs -f
+
+# Stop services
+docker-compose -f docker-compose.prod.yml down
+
+# Restart services
+docker-compose -f docker-compose.prod.yml restart
+
+# Access application container
+docker-compose -f docker-compose.prod.yml exec app bash
+
+# Run artisan commands
+docker-compose -f docker-compose.prod.yml exec app php artisan migrate
+```
+
+### Production Considerations
+
+1. **SSL/TLS**: Use a reverse proxy (like Traefik) for SSL termination
+2. **Database**: Consider using managed database services for production
+3. **Storage**: Use persistent volumes for file uploads
+4. **Monitoring**: Add monitoring and logging solutions
+5. **Backup**: Implement regular database and file backups
+
 ## 🤝 Contributing
 
 ### Development Workflow
