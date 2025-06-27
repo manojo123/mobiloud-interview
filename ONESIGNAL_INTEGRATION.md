@@ -65,7 +65,7 @@ The OneSignal integration automatically sends push notifications to all subscrib
 
 ```json
 {
-  "app_id": "d5c1fb18-dc0e-4af1-b7f1-59dc80e466c3",
+  "app_id": "",
   "included_segments": ["All"],
   "contents": {
     "en": "A new user has submitted the registration form"
@@ -179,8 +179,8 @@ The integration includes comprehensive test coverage:
 Add these to your production `.env` file:
 
 ```env
-ONESIGNAL_APP_ID=d5c1fb18-dc0e-4af1-b7f1-59dc80e466c3
-ONESIGNAL_API_KEY=os_v2_app_2xa7wgg4bzfpdn7rlhoibzdgymjmp47ck7muwbuvssdvita5gmikes2ltvaszelrgcwy7zgmfrihow6wbygtppzgxrfyqznoryh64za
+ONESIGNAL_APP_ID=
+ONESIGNAL_API_KEY=
 ONESIGNAL_REST_API_KEY=your_rest_api_key_here
 ONESIGNAL_SAFARI_WEB_ID=your_safari_web_id_here
 ```
