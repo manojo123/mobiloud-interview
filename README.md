@@ -666,7 +666,126 @@ docker-compose up -d
 - [ ] Configure backup strategy
 - [ ] Test OneSignal integration
 
-## 🐳 Docker Deployment
+## 🚂 Railway Deployment
+
+The application is optimized for deployment on Railway.com with automatic scaling and SQLite database.
+
+### Prerequisites
+
+- Railway account and CLI installed
+- Environment variables configured
+- **No external database service needed** - uses built-in SQLite
+
+### Quick Deployment
+
+1. **Install Railway CLI**
+   ```bash
+   npm install -g @railway/cli
+   ```
+
+2. **Login to Railway**
+   ```bash
+   railway login
+   ```
+
+3. **Initialize Railway Project**
+   ```bash
+   railway init
+   ```
+
+4. **Configure Environment Variables**
+   ```bash
+   railway variables set APP_ENV=production
+   railway variables set APP_DEBUG=false
+   railway variables set DB_CONNECTION=sqlite
+   railway variables set DB_DATABASE=/var/www/html/database/database.sqlite
+   railway variables set ONESIGNAL_APP_ID=your_onesignal_app_id
+   railway variables set ONESIGNAL_REST_API_KEY=your_onesignal_rest_api_key
+   ```
+
+5. **Deploy**
+   ```bash
+   ./railway-deploy.sh
+   ```
+
+### Manual Deployment
+
+```bash
+# Deploy to Railway
+railway up
+
+# View logs
+railway logs
+
+# Open dashboard
+railway open
+```
+
+### Railway Configuration
+
+#### `railway.json`
+- **Builder**: Dockerfile.railway
+- **Health Check**: `/health` endpoint
+- **Restart Policy**: On failure with 10 retries
+- **Port**: Dynamic (Railway sets PORT environment variable)
+- **Startup**: Automatic migrations and seeding
+
+#### Automatic Setup
+The Railway deployment automatically handles:
+- ✅ **SQLite Database** - Creates and configures SQLite database file
+- ✅ **Database Migrations** - Runs `php artisan migrate --force`
+- ✅ **Database Seeding** - Runs `php artisan db:seed --force`
+- ✅ **Configuration Caching** - Optimizes for production
+- ✅ **Permission Setup** - Sets proper file permissions
+- ✅ **SQLite Extensions** - Uses built-in SQLite support from Laravel Sail
+
+#### Environment Variables
+Railway automatically provides:
+- `PORT`: Dynamic port assignment
+- `RAILWAY_STATIC_URL`: Static asset URL
+- `RAILWAY_PUBLIC_DOMAIN`: Public domain
+
+Required variables to set:
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://your-app.railway.app
+
+DB_CONNECTION=sqlite
+DB_DATABASE=/var/www/html/database/database.sqlite
+
+ONESIGNAL_APP_ID=your_onesignal_app_id
+ONESIGNAL_REST_API_KEY=your_onesignal_rest_api_key
+```
+
+### Railway Features
+
+✅ **Automatic Scaling** - Scales based on traffic
+✅ **SQLite Database** - Built-in database, no external service needed
+✅ **SSL/TLS** - Automatic HTTPS
+✅ **Custom Domains** - Add your own domain
+✅ **Environment Variables** - Secure variable management
+✅ **Health Checks** - Automatic health monitoring
+✅ **Logs** - Real-time application logs
+✅ **Rollbacks** - Easy deployment rollbacks
+
+### Database Setup
+
+**No external database setup required!** The application uses SQLite:
+- Database file is created automatically during deployment
+- No need to configure external MySQL/PostgreSQL services
+- Data persists within the container
+- Perfect for simple applications and prototypes
+- Uses Laravel Sail's built-in SQLite support
+
+### Monitoring
+
+- **Health Checks**: Application responds to `/health` endpoint
+- **Logs**: View real-time logs in Railway dashboard
+- **Metrics**: Monitor CPU, memory, and network usage
+- **Alerts**: Set up alerts for downtime or errors
+
+## 🤝 Docker Deployment
 
 The application includes a complete Docker setup for production deployment with PHP 8.4, Nginx, and MySQL.
 

@@ -8,6 +8,11 @@ Route::get('/', function () {
     return redirect()->route('form.index');
 });
 
+// Health check route for Railway
+Route::get('/health', function () {
+    return response('healthy', 200)->header('Content-Type', 'text/plain');
+});
+
 Route::prefix('form')->group(function () {
     Route::get('/', [FormController::class, 'index'])->name('form.index');
     Route::get('/step1', [FormController::class, 'step1'])->name('form.step1');

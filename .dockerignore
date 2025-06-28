@@ -41,10 +41,9 @@ storage/framework/sessions/*
 storage/framework/views/*
 bootstrap/cache/*
 
-# Docker
-Dockerfile
+# Docker (exclude docker-compose files but keep docker/ config files)
 docker-compose.yml
-docker/
+docker-compose.prod.yml
 .dockerignore
 
 # Build artifacts
